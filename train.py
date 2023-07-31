@@ -28,7 +28,8 @@ from model import Transformer, ModelArgs
 from torch.distributed import destroy_process_group, init_process_group
 from torch.nn.parallel import DistributedDataParallel as DDP
 
-from tinystories import Task
+#from tinystories import Task
+from russtories import Task
 
 # -----------------------------------------------------------------------------
 # I/O
@@ -40,16 +41,16 @@ eval_only = False  # if True, script exits right after the first eval
 always_save_checkpoint = False  # if True, always save a checkpoint after each eval
 init_from = "scratch"  # 'scratch' or 'resume'
 # wandb logging
-wandb_log = False  # disabled by default
+wandb_log = True  # disabled by default
 wandb_project = "llamac"
-wandb_run_name = "run" + datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+wandb_run_name = "run_combined" + datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
 # data
 batch_size = 128  # if gradient_accumulation_steps > 1, this is the micro-batch size
-max_seq_len = 256
+max_seq_len = 1024
 # model
-dim = 288
-n_layers = 6
-n_heads = 6
+dim = 768
+n_layers = 12
+n_heads = 12
 multiple_of = 32
 dropout = 0.0
 # adamw optimizer
@@ -231,7 +232,7 @@ def get_lr(it):
 # logging
 if wandb_log and master_process:
     import wandb
-    wandb.init(project=wandb_project, name=wandb_run_name, config=config)
+    wandb.init(project=wandb_project, name=wandb_run_name, config=config, resume=True)
 
 # training loop
 train_batch_iter = iter_batches("train")
